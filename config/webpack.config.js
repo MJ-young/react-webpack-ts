@@ -330,6 +330,8 @@ module.exports = function (webpackEnv) {
         // 文件路径别名
         "@": path.resolve(__dirname, "../src"),
         "@view": path.resolve(__dirname, "../src/view"),
+        // myBabelLoader
+        myBabelLoader: path.resolve(__dirname, "./loaders/babel-loader.js"),
       },
       plugins: [
         // Prevents users from importing files from outside of src/ (or node_modules/).
@@ -350,6 +352,19 @@ module.exports = function (webpackEnv) {
     module: {
       strictExportPresence: true,
       rules: [
+        {
+          test: /\.js$/,
+          // 只处理src/views/webpack/input.js
+          include: path.resolve(__dirname, "../src/views/webpack/input.js"),
+          use: [
+            {
+              loader: path.resolve(
+                __dirname,
+                "./loaders/arrowToFunctionLoader.js"
+              ),
+            },
+          ],
+        },
         // Handle node_modules packages that contain sourcemaps
         shouldUseSourceMap && {
           enforce: "pre",
@@ -417,6 +432,7 @@ module.exports = function (webpackEnv) {
             {
               test: /\.(js|mjs|jsx|ts|tsx)$/,
               include: paths.appSrc,
+              exclude: path.resolve(__dirname, "../src/views/webpack/input.js"),
               loader: require.resolve("babel-loader"),
               options: {
                 customize: require.resolve(
